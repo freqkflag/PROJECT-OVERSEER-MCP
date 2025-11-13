@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "overseer": {
+      "command": "node",
+      "args": ["/Volumes/projects/Overseerer-mcp/dist/server.js"],
+      "env": {
+        "OVERSEER_BASE_PATH": "~/dev"
+      }
+    }
+  }
+}
+

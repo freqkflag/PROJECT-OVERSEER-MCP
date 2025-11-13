@@ -26,7 +26,9 @@ export class RepoHandler {
   private configLoader: ConfigLoader;
 
   constructor(basePath?: string, configLoader?: ConfigLoader) {
-    this.basePath = basePath || join(homedir(), 'dev');
+    // Use OVERSEER_BASE_PATH env var if available, otherwise use provided basePath or default
+    const envBasePath = process.env.OVERSEER_BASE_PATH;
+    this.basePath = basePath || envBasePath || join(homedir(), 'dev');
     this.configLoader = configLoader || new ConfigLoader();
   }
 
@@ -101,21 +103,33 @@ export class RepoHandler {
     }
 
     // Extract phases from markdown sections
-    // Format: ### 1. phase-name\n\n**Status**: status\n**Description**: ...\n**Started**: ...\n**Completed**: ...
-    const phaseSectionRegex = /###\s+(\d+)\.\s+(.+?)\n\n\*\*Status\*\*:\s*(\w+)/g;
+    // Support multiple formats:
+    // Format 1: ### 1. phase-name\n\n**Status**: status
+    // Format 2: ### Phase 01: phase-name\n- **Status:** status
+    // Format 3: ### Phase 01: phase-name\n- **Status**: status
+    const phaseSectionRegex = /###\s+(?:Phase\s+)?(\d+)[:\.]\s*(.+?)(?:\n|$)/g;
     let match;
     
     while ((match = phaseSectionRegex.exec(content)) !== null) {
-      const phaseId = match[1].trim();
+      const phaseId = match[1].trim().padStart(2, '0');
       const phaseName = match[2].trim();
-      const status = match[3].trim() as PhaseInfo['status'];
       
-      // Extract description, started_at, completed_at from the section
+      // Find status in the section (look for - **Status:** or **Status**:)
       const sectionStart = match.index;
       const nextSection = content.indexOf('###', sectionStart + match[0].length);
       const sectionContent = nextSection > 0 
         ? content.substring(sectionStart, nextSection)
         : content.substring(sectionStart);
+      
+      // Try to find status in various formats
+      let status: PhaseInfo['status'] = 'pending';
+      const statusMatch1 = sectionContent.match(/[-*]\s*\*\*Status\*\*:\s*(\w+)/i);
+      const statusMatch2 = sectionContent.match(/\*\*Status\*\*:\s*(\w+)/i);
+      if (statusMatch1) {
+        status = statusMatch1[1].trim().toLowerCase() as PhaseInfo['status'];
+      } else if (statusMatch2) {
+        status = statusMatch2[1].trim().toLowerCase() as PhaseInfo['status'];
+      }
 
       let description: string | undefined;
       let startedAt: string | undefined;
@@ -289,6 +303,50 @@ export class RepoHandler {
     if (!existsSync(repoPath)) {
       mkdirSync(repoPath, { recursive: true });
     }
+  }
+
+  // Methods that work with absolute paths directly (handles paths with spaces)
+  readPhasesIndexFromPath(repoPath: string): ProjectPhases | null {
+    const conventions = this.configLoader.getConventions();
+    const indexPath = join(repoPath, conventions.phases_index.file);
+    
+    if (!existsSync(indexPath)) {
+      return null;
+    }
+
+    try {
+      const content = readFileSync(indexPath, 'utf-8');
+      
+      // Try to parse as JSON first (backward compatibility)
+      if (content.trim().startsWith('{')) {
+        return JSON.parse(content);
+      }
+      
+      // Extract repo name from path for parsing
+      const repoName = repoPath.split('/').pop() || 'unknown';
+      // Parse markdown format
+      return this.parsePhasesMarkdown(content, repoName);
+    } catch (error) {
+      throw new Error(`Failed to read PHASES.md from ${indexPath}: ${error}`);
+    }
+  }
+
+  writePhasesIndexToPath(repoPath: string, phases: ProjectPhases): void {
+    const conventions = this.configLoader.getConventions();
+    const indexPath = join(repoPath, conventions.phases_index.file);
+    const dir = dirname(indexPath);
+    
+    if (!existsSync(dir)) {
+      mkdirSync(dir, { recursive: true });
+    }
+
+    phases.updated_at = new Date().toISOString();
+    const content = this.generatePhasesMarkdown(phases);
+    writeFileSync(indexPath, content, 'utf-8');
+  }
+
+  getPhaseFileByIdFromPath(repoPath: string, phaseId: string): string {
+    return join(repoPath, `PHASE-${phaseId.padStart(2, '0')}.md`);
   }
 }
 

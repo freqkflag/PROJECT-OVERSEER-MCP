@@ -26,11 +26,20 @@ export class FSUtils {
 
   /**
    * Ensures a directory exists, creating it if necessary
+   * Handles paths with spaces and existing directories gracefully
    */
   static ensureDir(dirPath: string): void {
-    if (!existsSync(dirPath)) {
-      mkdirSync(dirPath, { recursive: true });
+    if (existsSync(dirPath)) {
+      // Check if it's actually a directory, not a file
+      const stats = statSync(dirPath);
+      if (!stats.isDirectory()) {
+        throw new Error(`Path exists but is not a directory: ${dirPath}`);
+      }
+      // Directory already exists, nothing to do
+      return;
     }
+    // Directory doesn't exist, create it
+    mkdirSync(dirPath, { recursive: true });
   }
 
   /**

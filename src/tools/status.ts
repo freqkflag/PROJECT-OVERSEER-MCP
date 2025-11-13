@@ -56,12 +56,12 @@ export async function handleStatus(
     }
     repoPath = FSUtils.expandPath(repoPath);
 
-    // Extract repo name from path
+    // Extract repo name from path (for display purposes)
     const repoName = repoPath.split('/').pop() || 'unknown';
 
-    // Read PHASES.md
+    // Read PHASES.md using absolute path (handles paths with spaces)
     const repoHandler = new RepoHandler();
-    const projectPhases = repoHandler.readPhasesIndex(repoName);
+    const projectPhases = repoHandler.readPhasesIndexFromPath(repoPath);
 
     if (!projectPhases) {
       return {
@@ -95,8 +95,8 @@ export async function handleStatus(
     const enhancedPhases = projectPhases.phases.map(phase => {
       let enhancedStatus = phase.status;
 
-      // Try to read phase file to get more accurate status
-      const phaseFilePath = join(repoPath, `PHASE-${phase.id.padStart(2, '0')}.md`);
+      // Try to read phase file to get more accurate status (handles paths with spaces)
+      const phaseFilePath = repoHandler.getPhaseFileByIdFromPath(repoPath, phase.id);
       if (FSUtils.fileExists(phaseFilePath)) {
         try {
           const phaseContent = FSUtils.readFile(phaseFilePath);

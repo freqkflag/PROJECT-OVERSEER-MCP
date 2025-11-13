@@ -116,16 +116,9 @@ export async function handleUpdatePhases(
       };
     }
 
-    // Use RepoHandler - we need to parse from the absolute path
-    // Create a temporary RepoHandler that can read from the repo path
-    // For absolute paths, we'll read and parse directly
-    const content = FSUtils.readFile(phasesPath);
+    // Use RepoHandler with absolute path (handles paths with spaces)
     const repoHandler = new RepoHandler();
-    
-    // Try to parse - RepoHandler expects repo name, but we have absolute path
-    // We'll need to use a workaround: set the base path temporarily
-    // Actually, let's create a custom parser for this case
-    let projectPhases = repoHandler.readPhasesIndex(repoName);
+    let projectPhases = repoHandler.readPhasesIndexFromPath(repoPath);
     
     if (!projectPhases) {
       return {
@@ -224,7 +217,7 @@ export async function handleUpdatePhases(
     // Write updated PHASES.md
     if (added.length > 0 || updated.length > 0 || removed.length > 0) {
       try {
-        repoHandler.writePhasesIndex(repoName, projectPhases);
+        repoHandler.writePhasesIndexToPath(repoPath, projectPhases);
         filesWritten.push(join(repoPath, 'PHASES.md'));
       } catch (error) {
         errors.push(`Failed to write PHASES.md: ${error}`);

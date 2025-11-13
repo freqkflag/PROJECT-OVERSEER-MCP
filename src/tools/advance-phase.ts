@@ -66,10 +66,10 @@ export async function handleAdvancePhase(
 
     const expectedPhaseId = args.expected_current_phase.padStart(2, '0');
 
-    // Read PHASES.md
+    // Read PHASES.md using absolute path (handles paths with spaces)
     const repoName = repoPath.split('/').pop() || 'unknown';
     const repoHandler = new RepoHandler();
-    const projectPhases = repoHandler.readPhasesIndex(repoName);
+    const projectPhases = repoHandler.readPhasesIndexFromPath(repoPath);
 
     if (!projectPhases) {
       return {
@@ -114,8 +114,8 @@ export async function handleAdvancePhase(
       };
     }
 
-    // Read PHASE-XX.md to check deliverables and done criteria
-    const phaseFilePath = join(repoPath, `PHASE-${expectedPhaseId}.md`);
+    // Read PHASE-XX.md to check deliverables and done criteria (handles paths with spaces)
+    const phaseFilePath = repoHandler.getPhaseFileByIdFromPath(repoPath, expectedPhaseId);
     if (!FSUtils.fileExists(phaseFilePath)) {
       return {
         success: false,
@@ -231,8 +231,8 @@ export async function handleAdvancePhase(
       changesApplied.push(join(repoPath, 'PHASES.md'));
     }
 
-    // Write updated PHASES.md
-    repoHandler.writePhasesIndex(repoName, projectPhases);
+    // Write updated PHASES.md using absolute path
+    repoHandler.writePhasesIndexToPath(repoPath, projectPhases);
 
     return {
       success: true,

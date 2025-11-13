@@ -76,10 +76,10 @@ export async function handleSyncDocs(
 
     const dryRun = args.options?.dry_run || false;
 
-    // Read PHASES.md
+    // Read PHASES.md using absolute path (handles paths with spaces)
     const repoName = repoPath.split('/').pop() || 'unknown';
     const repoHandler = new RepoHandler();
-    const projectPhases = repoHandler.readPhasesIndex(repoName);
+    const projectPhases = repoHandler.readPhasesIndexFromPath(repoPath);
 
     if (!projectPhases) {
       return {

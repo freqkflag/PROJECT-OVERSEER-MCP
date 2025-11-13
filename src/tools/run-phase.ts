@@ -71,10 +71,10 @@ export async function handleRunPhase(
     const phaseId = args.phase_id.padStart(2, '0');
     const aggressionLevel = args.aggression_level || 'normal';
 
-    // Read PHASES.md
+    // Read PHASES.md using absolute path (handles paths with spaces)
     const repoName = repoPath.split('/').pop() || 'unknown';
     const repoHandler = new RepoHandler();
-    const projectPhases = repoHandler.readPhasesIndex(repoName);
+    const projectPhases = repoHandler.readPhasesIndexFromPath(repoPath);
 
     if (!projectPhases) {
       return {
@@ -102,8 +102,8 @@ export async function handleRunPhase(
       };
     }
 
-    // Read PHASE-XX.md
-    const phaseFilePath = join(repoPath, `PHASE-${phaseId}.md`);
+    // Read PHASE-XX.md (handles paths with spaces)
+    const phaseFilePath = repoHandler.getPhaseFileByIdFromPath(repoPath, phaseId);
     if (!FSUtils.fileExists(phaseFilePath)) {
       return {
         success: false,
@@ -199,7 +199,7 @@ export async function handleRunPhase(
     if (phase.status === 'pending') {
       phase.status = 'in_progress';
       phase.started_at = new Date().toISOString();
-      repoHandler.writePhasesIndex(repoName, projectPhases);
+      repoHandler.writePhasesIndexToPath(repoPath, projectPhases);
       changedFiles.push(join(repoPath, 'PHASES.md'));
     }
 
