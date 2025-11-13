@@ -1,0 +1,281 @@
+# Overseer MCP Configuration
+# Defines phase templates, conventions, environments, and coding standards
+
+# Project defaults applied to all new projects
+project_defaults:
+  repo_root_base: "~/dev"
+  phases_file: "PHASES.md"
+  phase_file_pattern: "PHASE-{id}.md"
+  default_phases:
+    - "foundation"
+    - "core_features"
+    - "testing"
+    - "documentation"
+  git_enabled: true
+  auto_generate_readme: true
+
+# Phase templates available for project planning
+phase_templates:
+  foundation:
+    name: "Foundation Phase"
+    description: "Project foundation, setup, and initial structure"
+    steps:
+      - "Initialize project structure"
+      - "Set up development environment"
+      - "Configure build tools"
+      - "Create initial documentation"
+    artifacts:
+      - "package.json"
+      - "tsconfig.json"
+      - "README.md"
+      - ".gitignore"
+  
+  planning:
+    name: "Planning Phase"
+    description: "Initial project planning and architecture design"
+    steps:
+      - "Define project structure"
+      - "Create initial documentation"
+      - "Set up development environment"
+    artifacts:
+      - "PHASES.md"
+      - "ARCHITECTURE.md"
+      - "README.md"
+  
+  core_features:
+    name: "Core Features Phase"
+    description: "Core feature development and implementation"
+    steps:
+      - "Implement core functionality"
+      - "Write unit tests"
+      - "Update documentation"
+    artifacts:
+      - "src/**/*.ts"
+      - "tests/**/*.test.ts"
+  
+  implementation:
+    name: "Implementation Phase"
+    description: "Core feature development"
+    steps:
+      - "Implement core functionality"
+      - "Write unit tests"
+      - "Update documentation"
+    artifacts:
+      - "src/**/*.ts"
+      - "tests/**/*.test.ts"
+  
+  testing:
+    name: "Testing Phase"
+    description: "Comprehensive testing and validation"
+    steps:
+      - "Run test suite"
+      - "Perform integration testing"
+      - "Fix identified issues"
+    artifacts:
+      - "test-results/**"
+      - "coverage/**"
+  
+  documentation:
+    name: "Documentation Phase"
+    description: "Create and maintain project documentation"
+    steps:
+      - "Write API documentation"
+      - "Create user guides"
+      - "Update README"
+    artifacts:
+      - "docs/**"
+      - "README.md"
+      - "API.md"
+  
+  deployment:
+    name: "Deployment Phase"
+    description: "Prepare and deploy to production"
+    steps:
+      - "Build production artifacts"
+      - "Run deployment scripts"
+      - "Verify deployment"
+    artifacts:
+      - "dist/**"
+      - "deployment-logs/**"
+
+# Project conventions and naming standards
+conventions:
+  phase_files:
+    pattern: "PHASE-{id}.md"
+    location: "project_root"
+  
+  phases_index:
+    file: "PHASES.md"
+    location: "project_root"
+  
+  naming:
+    phase_names: "kebab-case"
+    branch_names: "phase/{name}"
+    repo_names: "kebab-case"
+    container_names: "{project}-{service}-{env}"
+  
+  domains:
+    primary: "freqkflag.co"
+    secondary:
+      - "cultofjoey.com"
+      - "twist3dkinkst3r.com"
+    subdomain_pattern: "{service}.{domain}"
+  
+  docker:
+    image_prefix: "freqkflag"
+    container_naming: "{project}-{service}-{env}"
+    network_naming: "{project}-network"
+    volume_naming: "{project}-{volume}-data"
+
+# Environment-specific settings
+environments:
+  development:
+    base_path: "~/dev"
+    auto_commit: false
+    verbose_logging: true
+    docker_host: "localhost"
+  
+  vps.host:
+    base_path: "/root/dev"
+    auto_commit: true
+    verbose_logging: false
+    docker_host: "localhost"
+    ssh_host: "vps.freqkflag.co"
+    ssh_user: "root"
+    ssh_port: 22
+  
+  home.macmini:
+    base_path: "~/dev"
+    auto_commit: false
+    verbose_logging: true
+    docker_host: "localhost"
+  
+  holo-cube:
+    base_path: "~/dev"
+    auto_commit: false
+    verbose_logging: true
+    docker_host: "localhost"
+
+# Coding standards for different languages
+coding_standards:
+  languages:
+    typescript:
+      formatter: "prettier"
+      linter: "eslint"
+      style_guide: "airbnb"
+      config_files:
+        - ".prettierrc"
+        - ".eslintrc.json"
+        - "tsconfig.json"
+    javascript:
+      formatter: "prettier"
+      linter: "eslint"
+      style_guide: "airbnb"
+      config_files:
+        - ".prettierrc"
+        - ".eslintrc.json"
+    python:
+      formatter: "black"
+      linter: "pylint"
+      style_guide: "pep8"
+      config_files:
+        - "pyproject.toml"
+        - ".pylintrc"
+    elixir:
+      formatter: "mix format"
+      linter: "credo"
+      style_guide: "elixir-style-guide"
+      config_files:
+        - ".formatter.exs"
+        - ".credo.exs"
+    php:
+      formatter: "php-cs-fixer"
+      linter: "phpstan"
+      style_guide: "PSR-12"
+      config_files:
+        - ".php-cs-fixer.php"
+        - "phpstan.neon"
+    go:
+      formatter: "gofmt"
+      linter: "golangci-lint"
+      style_guide: "effective-go"
+      config_files:
+        - ".golangci.yml"
+    rust:
+      formatter: "rustfmt"
+      linter: "clippy"
+      style_guide: "rust-style-guide"
+      config_files:
+        - "rustfmt.toml"
+        - ".clippy.toml"
+  
+  general:
+    max_line_length: 100
+    indent_size: 2
+    use_tabs: false
+    trailing_commas: true
+    end_of_line: "lf"
+
+# CI/CD defaults for pipeline generation
+ci_cd:
+  default_provider: "github-actions"
+  default_workflow:
+    name: "CI"
+    on:
+      push:
+        branches: ["main", "master"]
+      pull_request:
+        branches: ["main", "master"]
+    jobs:
+      - name: "test"
+        runs-on: "ubuntu-latest"
+        steps:
+          - uses: "actions/checkout@v3"
+          - name: "Setup Node.js"
+            uses: "actions/setup-node@v3"
+            with:
+              node-version: "18"
+          - name: "Install dependencies"
+            run: "npm ci"
+          - name: "Run tests"
+            run: "npm test"
+      - name: "lint"
+        runs-on: "ubuntu-latest"
+        steps:
+          - uses: "actions/checkout@v3"
+          - name: "Setup Node.js"
+            uses: "actions/setup-node@v3"
+            with:
+              node-version: "18"
+          - name: "Install dependencies"
+            run: "npm ci"
+          - name: "Run linter"
+            run: "npm run lint"
+      - name: "build"
+        runs-on: "ubuntu-latest"
+        needs: ["test", "lint"]
+        steps:
+          - uses: "actions/checkout@v3"
+          - name: "Setup Node.js"
+            uses: "actions/setup-node@v3"
+            with:
+              node-version: "18"
+          - name: "Install dependencies"
+            run: "npm ci"
+          - name: "Build"
+            run: "npm run build"
+  supported_providers:
+    - "github-actions"
+    - "gitlab-ci"
+    - "circleci"
+    - "jenkins"
+  
+  github_actions:
+    default_runners:
+      - "ubuntu-latest"
+      - "macos-latest"
+      - "windows-latest"
+    cache_strategies:
+      - "npm"
+      - "docker"
+      - "composer"

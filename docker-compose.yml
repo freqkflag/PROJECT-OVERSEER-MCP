@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  overseer-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: freqkflag/overseer-mcp:latest
+    container_name: overseer-mcp
+    volumes:
+      # Mount host dev directory to access repositories
+      - ~/dev:/root/dev:ro
+      # Mount config directory for customization
+      - ./config:/app/config:ro
+    environment:
+      - NODE_ENV=production
+      - OVERSEER_BASE_PATH=/root/dev
+    stdin_open: true
+    tty: true
+    # For MCP stdio transport, we need to keep stdin/stdout open
+    # This is typically used when running via MCP client, not directly
+    restart: unless-stopped
+    networks:
+      - overseer-network
+
+networks:
+  overseer-network:
+    name: overseer-network
+    driver: bridge
+

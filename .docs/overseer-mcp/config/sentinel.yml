@@ -1,0 +1,70 @@
+project_defaults:
+  repo_root_base: "~/dev"
+  phases_file: "PHASES.md"
+  phase_file_pattern: "PHASE-%02d.md"
+  aggression_level: "bossmode"
+
+phase_templates:
+  foundation:
+    name: "Foundation / Bootstrap"
+    default_deliverables:
+      - "docker-compose.yml"
+      - ".env.example"
+      - "README.md"
+      - "PHASES.md"
+      - "PHASE-01.md"
+    done_criteria:
+      - "All core services defined in docker-compose.yml"
+      - "Service names and labels follow Joey conventions"
+      - ".env.example covers all required env vars"
+      - "README.md includes quickstart"
+  core_features:
+    name: "Core Features"
+    default_deliverables:
+      - "app main modules implemented"
+      - "basic auth/sign-in flow"
+      - "baseline tests for main flows"
+    done_criteria:
+      - "All features in PHASE-02.md implemented and tested"
+
+conventions:
+  service_prefix: "joey"
+  default_time_zone: "America/Chicago"
+  containers_network: "edge"
+  domains:
+    primary_infra_domain: "freqkflag.co"
+    personal_site_domain: "cultofjoey.com"
+    clubhouse_domain: "twist3dkinkst3r.com"
+
+environments:
+  - id: "vps.host"
+    description: "Remote VPS production environment"
+    base_path: "/srv"
+    default_domain_suffix: ".freqkflag.co"
+  - id: "home.macmini"
+    description: "Mac Mini homelab node"
+    base_path: "/srv"
+    default_domain_suffix: ".freqkflag.co"
+  - id: "holo-cube"
+    description: "Local dev workstation"
+    base_path: "~/dev"
+
+coding_standards:
+  language_defaults:
+    elixir:
+      formatter: "mix format"
+      style: "idiomatic"
+    typescript:
+      formatter: "eslint+prettier"
+    php:
+      formatter: "php-cs-fixer"
+  docs_style:
+    headings: "ATX"
+    line_width: 100
+
+ci_cd:
+  default_provider: "github-actions"
+  workflows:
+    - name: "build-and-test"
+      file: ".github/workflows/build-and-test.yml"
+      required_in_phase: 1
