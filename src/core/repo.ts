@@ -26,9 +26,9 @@ export class RepoHandler {
   private configLoader: ConfigLoader;
 
   constructor(basePath?: string, configLoader?: ConfigLoader) {
-    // Use OVERSEER_BASE_PATH env var if available, otherwise use provided basePath or default
+    // Use OVERSEER_BASE_PATH env var if available (highest priority), otherwise use provided basePath or default
     const envBasePath = process.env.OVERSEER_BASE_PATH;
-    this.basePath = basePath || envBasePath || join(homedir(), 'dev');
+    this.basePath = envBasePath || basePath || join(homedir(), 'dev');
     this.configLoader = configLoader || new ConfigLoader();
   }
 

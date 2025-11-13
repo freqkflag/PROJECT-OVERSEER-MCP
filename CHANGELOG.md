@@ -75,10 +75,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Impact:** Base path can now be configured via environment variable
 - **Changes:**
   - Updated `RepoHandler` constructor to read `OVERSEER_BASE_PATH` from environment
-  - Environment variable takes precedence over default `~/dev` path
+  - Environment variable takes precedence over constructor parameter and default `~/dev` path
+  - Priority order: `OVERSEER_BASE_PATH` (env var) > `basePath` (constructor) > `~/dev` (default)
 - **Files Modified:**
   - `src/core/repo.ts`
 - **Breaking Changes:** None
+- **Fix Date:** 2024-11-13 - Corrected precedence order to give environment variable highest priority
 
 ### 🟢 Medium Priority Improvements
 
