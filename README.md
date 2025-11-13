@@ -4,6 +4,10 @@
 
 A standalone Model Context Protocol (MCP) server that implements Overseer multi-agent behavior for structured project management. Overseer provides planning, execution, and enforcement capabilities for managing software projects through well-defined phases.
 
+<a href="https://glama.ai/mcp/servers/@freqkflag/PROJECT-OVERSEER-MCP">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@freqkflag/PROJECT-OVERSEER-MCP/badge" alt="Overseer Server MCP server" />
+</a>
+
 ## Quick Start
 
 ```bash
